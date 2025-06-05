@@ -134,7 +134,7 @@ npm install
 npm run build 
 ```
 
-To start Urbanite's frontend, simply run:
+Now, go to the `frontend/urban-workflows` folder and run the following lines to start Urbanite's frontend:
 
 ```console
 npm install
