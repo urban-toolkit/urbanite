@@ -394,50 +394,52 @@ export const BoxContainer = ({
     }
 
     const clickGenerateContentNode = () => {
-        if(llmEvents.length > 0){
-            alert("Wait a few seconds, we are still processing requests.")
-        }else{
+        // if(llmEvents.length > 0){
+        //     alert("Wait a few seconds, we are still processing requests.")
+        // }else{
 
-            setCurrentEventPipeline("Generate content for node");
+        //     setCurrentEventPipeline("Generate content for node");
 
-            addNewEvent({
-                type: LLMEvents.GENERATE_CONTENT_NODE,
-                status: LLMEventStatus.NOTDONE,
-                data: nodeId
-            });
+        //     addNewEvent({
+        //         type: LLMEvents.GENERATE_CONTENT_NODE,
+        //         status: LLMEventStatus.NOTDONE,
+        //         data: nodeId
+        //     });
 
-        }
+        // }
+        setCurrentEventPipeline("Generate content for node");
+        generateContentNode(nodes, edges, workflowNameRef, goal, workflowGoal);
     }
 
-    useEffect(() => {
-        if(llmEvents.length > 0){
-            if(llmEvents[0].type == LLMEvents.GENERATE_CONTENT_NODE && llmEvents[0].status == LLMEventStatus.NOTDONE && llmEvents[0].data == nodeId){
-                consumeEvent({type: LLMEvents.GENERATE_CONTENT_NODE, status: LLMEventStatus.PROCESSING, data: nodeId});
-            }else if(llmEvents[0].type == LLMEvents.GENERATE_CONTENT_NODE && llmEvents[0].status == LLMEventStatus.PROCESSING && llmEvents[0].data == nodeId){
-                generateContentNode(nodes, edges, workflowNameRef, goal, workflowGoal)
-            }
-        }
-    }, [llmEvents]);
+    // useEffect(() => {
+    //     if(llmEvents.length > 0){
+    //         if(llmEvents[0].type == LLMEvents.GENERATE_CONTENT_NODE && llmEvents[0].status == LLMEventStatus.NOTDONE && llmEvents[0].data == nodeId){
+    //             consumeEvent({type: LLMEvents.GENERATE_CONTENT_NODE, status: LLMEventStatus.PROCESSING, data: nodeId});
+    //         }else if(llmEvents[0].type == LLMEvents.GENERATE_CONTENT_NODE && llmEvents[0].status == LLMEventStatus.PROCESSING && llmEvents[0].data == nodeId){
+    //             generateContentNode(nodes, edges, workflowNameRef, goal, workflowGoal);
+    //         }
+    //     }
+    // }, [llmEvents]);
 
-    useEffect(() => {
-        if(llmEvents.length > 0){
-            if(llmEvents[0].type == LLMEvents.GENERATE_CONTENT_NODE && llmEvents[0].status == LLMEventStatus.PROCESSING && llmEvents[0].data == nodeId){
-                consumeEvent({type: LLMEvents.GENERATE_CONTENT_NODE, status: LLMEventStatus.DONE, data: nodeId});
-                TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
-            }
-        }
-    }, [nodes]);
+    // useEffect(() => {
+    //     if(llmEvents.length > 0){
+    //         if(llmEvents[0].type == LLMEvents.GENERATE_CONTENT_NODE && llmEvents[0].status == LLMEventStatus.PROCESSING && llmEvents[0].data == nodeId){
+    //             consumeEvent({type: LLMEvents.GENERATE_CONTENT_NODE, status: LLMEventStatus.DONE, data: nodeId});
+    //             TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
+    //         }
+    //     }
+    // }, [nodes]);
 
     const updateDataGoal = (goal: string) => {
         if(data.goal != goal){
 
             setCurrentEventPipeline("Directly editing a Subtask");
 
-            addNewEvent({
-                type: LLMEvents.EDIT_SUBTASK,
-                status: LLMEventStatus.NOTDONE,
-                data: goal
-            });
+            // addNewEvent({
+            //     type: LLMEvents.EDIT_SUBTASK,
+            //     status: LLMEventStatus.NOTDONE,
+            //     data: goal
+            // });
 
             let newData = {...data}; 
             newData.goal = goal; 

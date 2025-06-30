@@ -259,25 +259,25 @@ export function MainCanvas() {
                                 }
                             }
 
-                            if(allowed && llmEvents.length > 0){
-                                alert("Wait a few seconds, we are still processing requests.");
-                                allowed = false;
-                                break
-                            }else if(allowed){
-                                for(const node of nodes){
-                                    if(node.id == change.id){
-                                        if(node.data != undefined && node.data.goal != "" && node.data.goal != undefined){
-                                            setCurrentEventPipeline("Deleting a node with Subtask");
+                            // if(allowed && llmEvents.length > 0){
+                            //     alert("Wait a few seconds, we are still processing requests.");
+                            //     allowed = false;
+                            //     break
+                            // }else if(allowed){
+                            //     for(const node of nodes){
+                            //         if(node.id == change.id){
+                            //             if(node.data != undefined && node.data.goal != "" && node.data.goal != undefined){
+                            //                 setCurrentEventPipeline("Deleting a node with Subtask");
                                             
-                                            addNewEvent({
-                                                type: LLMEvents.DELETE_SUBTASK,
-                                                status: LLMEventStatus.NOTDONE,
-                                                data: ""
-                                            })
-                                        }
-                                    }
-                                }
-                            }
+                            //                 addNewEvent({
+                            //                     type: LLMEvents.DELETE_SUBTASK,
+                            //                     status: LLMEventStatus.NOTDONE,
+                            //                     data: ""
+                            //                 })
+                            //             }
+                            //         }
+                            //     }
+                            // }
                         }
 
                         if(change.type == "position" && change.position != undefined && change.position.x != undefined){

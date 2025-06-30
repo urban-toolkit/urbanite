@@ -19,8 +19,10 @@ app = Flask(__name__)
 address=os.getenv('FLASK_RUN_HOST', 'localhost')
 port=int(os.getenv('FLASK_RUN_PORT', 5002))
 
-api_address = os.getenv('SANDBOX_ADDRESS', 'localhost')
-api_port = int(os.getenv('SANDBOX_PORT', 2000))
+# api_address = os.getenv('SANDBOX_ADDRESS', 'localhost')
+api_address = "http://localhost"
+
+api_port = 2000
 
 conversation = {}
 

@@ -74,11 +74,14 @@ const ChatComponent = () => {
             if (isConfirmed) {
                 setCurrentEventPipeline("Applying Task from LLM");
 
-                addNewEvent({
-                    type: LLMEvents.APPLY_TASK,
-                    data: checkForGoal(task) as string,
-                    status: LLMEventStatus.NOTDONE
-                });
+                // addNewEvent({
+                //     type: LLMEvents.APPLY_TASK,
+                //     data: checkForGoal(task) as string,
+                //     status: LLMEventStatus.NOTDONE
+                // });
+
+                cleanCanvas();
+                setWorkflowGoal(checkForGoal(task) as string);
             }
         }else{
             alert("Wait a few seconds, we are still processing requests.")
@@ -86,19 +89,19 @@ const ChatComponent = () => {
 
     }
 
-    useEffect(() => {
-        if(llmEvents.length > 0){
-            if(llmEvents[0].type == LLMEvents.APPLY_TASK){
+    // useEffect(() => {
+    //     if(llmEvents.length > 0){
+    //         if(llmEvents[0].type == LLMEvents.APPLY_TASK){
 
-                let event = {...llmEvents[0]};
+    //             let event = {...llmEvents[0]};
 
-                consumeEvent({type: LLMEvents.GENERATE_HIGHLIGHTS_RESET, status: LLMEventStatus.NOTDONE, data: event.data}); // Consume current event and replace it with a new one in the same position
+    //             consumeEvent({type: LLMEvents.GENERATE_HIGHLIGHTS_RESET, status: LLMEventStatus.NOTDONE, data: event.data}); // Consume current event and replace it with a new one in the same position
                 
-                cleanCanvas();
-                setWorkflowGoal(event.data);
-            }
-        }
-    }, [llmEvents]);
+    //             cleanCanvas();
+    //             setWorkflowGoal(event.data);
+    //         }
+    //     }
+    // }, [llmEvents]);
 
     useEffect(() => {
         let messagesDiv = document.getElementById("messagesDiv");

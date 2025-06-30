@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CSS from "csstype";
 import { useLLMContext } from "../../providers/LLMProvider";
 import { useFlowContext } from "../../providers/FlowProvider";
@@ -17,6 +17,9 @@ export function WorkflowGoal({ }: { }) {
     const [tooltip, setTooltip] = useState({ visible: false, text: "", x: 0, y: 0, color: "" });
     const [loading, setLoading] = useState(false);
     const [tempWorkflowGoal, setTempWorkflowGoal] = useState(workflowGoal);
+    const intervalWarningsRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const intervalNewSubtaskssRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const intervalHighlightsBindingsRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const typeColors: any = {
         Action: "#e6b1b1",
@@ -170,19 +173,24 @@ export function WorkflowGoal({ }: { }) {
     };
 
     const handleNameBlur = () => {
+
         setIsEditing(false);
 
         setCurrentEventPipeline("Directly editing a Task");
+        setTempWorkflowGoal(tempWorkflowGoal);
 
         if(tempWorkflowGoal != workflowGoal){
-            addNewEvent({
-                type: LLMEvents.EDIT_TASK,
-                status: LLMEventStatus.NOTDONE,
-                data: tempWorkflowGoal
-            });
+            setWorkflowGoal(tempWorkflowGoal);
+            parseKeywords(tempWorkflowGoal);
         }
 
-
+        // if(tempWorkflowGoal != workflowGoal){
+        //     addNewEvent({
+        //         type: LLMEvents.EDIT_TASK,
+        //         status: LLMEventStatus.NOTDONE,
+        //         data: tempWorkflowGoal
+        //     });
+        // }
     };
 
     const getNewSubtasks = async (current_task: string) => { // Based on the changes that the user made on the task reflect it to the subtasks
@@ -203,10 +211,11 @@ export function WorkflowGoal({ }: { }) {
                 parsed_result.dataflow.name = workflowNameRef.current;
     
                 updateSubtasks(parsed_result);
-            }else if(llmEvents.length > 0 && llmEvents[0].type == LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
-                TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
-                consumeEvent({type: LLMEvents.GENERATE_HIGHLIGHTS, status: LLMEventStatus.NOTDONE, data: llmEvents[0].data});
             }
+            // else if(llmEvents.length > 0 && llmEvents[0].type == LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
+            //     TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
+            //     consumeEvent({type: LLMEvents.GENERATE_HIGHLIGHTS, status: LLMEventStatus.NOTDONE, data: llmEvents[0].data});
+            // }
 
         } catch (error) {
             console.error("Error communicating with LLM", error);
@@ -215,70 +224,116 @@ export function WorkflowGoal({ }: { }) {
 
     }
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if(llmEvents.length > 0){
-            if(llmEvents[0].type == LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK && llmEvents[0].status == LLMEventStatus.PROCESSING){ 
+    //     if(llmEvents.length > 0){
+    //         if(llmEvents[0].type == LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK && llmEvents[0].status == LLMEventStatus.PROCESSING){ 
                 
-                TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
+    //             TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
 
-                consumeEvent({type: LLMEvents.GENERATE_WARNINGS, status: LLMEventStatus.PROCESSING});
+    //             consumeEvent({type: LLMEvents.GENERATE_WARNINGS, status: LLMEventStatus.PROCESSING});
                 
-                generateWarnings(workflowGoal, nodes, edges, workflowNameRef);
-            }
-        }
+    //             generateWarnings(workflowGoal, nodes, edges, workflowNameRef);
+    //         }
+    //     }
 
-    }, [workflowGoal])
+    // }, [workflowGoal])
 
-    useEffect(() => { 
+    // LLM communication
+    // useEffect(() => {
+    //     if (!intervalWarningsRef.current) {
+    //         intervalWarningsRef.current = setInterval(() => {
+    //             console.log("Generating warnings, higlights, and a new updated task (based on subtasks) (every 1 minute)");
+    //             generateWarnings(workflowGoal, nodes, edges, workflowNameRef);
+    //             parseKeywords(workflowGoal);
+    //             getNewTask(workflowGoal, highlights);
+    //         }, 60000); 
+    //     }
 
-        if(llmEvents.length > 0){
-            if(llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS_RESET && llmEvents[0].status == LLMEventStatus.PROCESSING){ // The highlights generation is done
+    //     return () => {
+    //         clearInterval(intervalWarningsRef.current as ReturnType<typeof setInterval>);
+    //         intervalWarningsRef.current = null;
+    //     };
 
-                consumeEvent({type: LLMEvents.GENERATE_SUGGESTIONS, status: LLMEventStatus.NOTDONE, data: true});
+    // }, []);
 
-            }else if(llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.PROCESSING){
+    // useEffect(() => {
+    //     if (!intervalHighlightsBindingsRef.current) {
+    //         intervalHighlightsBindingsRef.current = setInterval(() => {
+    //             console.log("Generating highlights bindings (every 2 minute)");
+    //             getNewHighlightsBinding(nodes, edges, workflowNameRef.current, highlights, workflowGoal);
+    //         }, 60000); 
+    //     }
 
-                consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.NOTDONE});
+    //     return () => {
+    //         clearInterval(intervalHighlightsBindingsRef.current as ReturnType<typeof setInterval>);
+    //         intervalHighlightsBindingsRef.current = null;
+    //     };
 
-            }
-        }
+    // }, []);
 
-    }, [highlights]) 
+    // useEffect(() => {
+    //     if (!intervalNewSubtaskssRef.current) {
+    //         intervalNewSubtaskssRef.current = setInterval(() => {
+    //             console.log("Generating new subtasks (every 30 seconds)");
+    //             getNewSubtasks(workflowGoal);
+    //         }, 30000); 
+    //     }
 
-    useEffect(() => {
-        if(llmEvents.length > 0){
-            if((llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS_RESET || llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS) && llmEvents[0].status == LLMEventStatus.NOTDONE){
+    //     return () => {
+    //         clearInterval(intervalNewSubtaskssRef.current as ReturnType<typeof setInterval>);
+    //         intervalWarningsRef.current = null;
+    //     };
 
-                let event = {...llmEvents[0]};
+    // }, []);
 
-                consumeEvent({type: event.type, status: LLMEventStatus.PROCESSING});
+    // useEffect(() => { 
+
+    //     if(llmEvents.length > 0){
+    //         if(llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS_RESET && llmEvents[0].status == LLMEventStatus.PROCESSING){ // The highlights generation is done
+
+    //             consumeEvent({type: LLMEvents.GENERATE_SUGGESTIONS, status: LLMEventStatus.NOTDONE, data: true});
+
+    //         }else if(llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.PROCESSING){
+
+    //             consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.NOTDONE});
+
+    //         }
+    //     }
+
+    // }, [highlights]) 
+
+    // useEffect(() => {
+    //     if(llmEvents.length > 0){
+    //         if((llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS_RESET || llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS) && llmEvents[0].status == LLMEventStatus.NOTDONE){
+
+    //             let event = {...llmEvents[0]};
+
+    //             consumeEvent({type: event.type, status: LLMEventStatus.PROCESSING});
                 
-                setTempWorkflowGoal(event.data);
-                parseKeywords(event.data);
-                // setTempWorkflowGoal(workflowGoal);
-                // parseKeywords(workflowGoal);
-            }else if(llmEvents[0].type == LLMEvents.BIND_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.NOTDONE){
-                consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.PROCESSING});
-            }else if(llmEvents[0].type == LLMEvents.EDIT_TASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
-                consumeEvent({type: LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK, status: LLMEventStatus.PROCESSING, data: llmEvents[0].data});
-            }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
-                consumeEvent({type: LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK, status: LLMEventStatus.PROCESSING, data: llmEvents[0].data});
-            }else if(llmEvents[0].status == LLMEventStatus.DONE){
-                consumeEvent();
-            }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
-                setWorkflowGoal(tempWorkflowGoal);
-                getNewSubtasks(tempWorkflowGoal);
-            }else if(llmEvents[0].type == LLMEvents.BIND_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.PROCESSING){
-                getNewHighlightsBinding(nodes, edges, workflowNameRef.current, highlights, workflowGoal);
-            }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
-                getNewTask(workflowGoal, highlights);
-            }else if((llmEvents[0].type == LLMEvents.GENERATE_SUGGESTIONS) && llmEvents[0].status == LLMEventStatus.NOTDONE){
-                consumeEvent({type: LLMEvents.GENERATE_SUGGESTIONS, status: LLMEventStatus.PROCESSING});
-                generateSuggestion(llmEvents[0].data);
-            }
-        }
-    }, [llmEvents])
+    //             setTempWorkflowGoal(event.data);
+    //             parseKeywords(event.data);
+    //         }else if(llmEvents[0].type == LLMEvents.BIND_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.NOTDONE){
+    //             consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.PROCESSING});
+    //         }else if(llmEvents[0].type == LLMEvents.EDIT_TASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
+    //             consumeEvent({type: LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK, status: LLMEventStatus.PROCESSING, data: llmEvents[0].data});
+    //         }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
+    //             consumeEvent({type: LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK, status: LLMEventStatus.PROCESSING, data: llmEvents[0].data});
+    //         }else if(llmEvents[0].status == LLMEventStatus.DONE){
+    //             consumeEvent();
+    //         }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
+    //             setWorkflowGoal(tempWorkflowGoal);
+    //             getNewSubtasks(tempWorkflowGoal);
+    //         }else if(llmEvents[0].type == LLMEvents.BIND_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.PROCESSING){
+    //             getNewHighlightsBinding(nodes, edges, workflowNameRef.current, highlights, workflowGoal);
+    //         }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
+    //             getNewTask(workflowGoal, highlights);
+    //         }else if((llmEvents[0].type == LLMEvents.GENERATE_SUGGESTIONS) && llmEvents[0].status == LLMEventStatus.NOTDONE){
+    //             consumeEvent({type: LLMEvents.GENERATE_SUGGESTIONS, status: LLMEventStatus.PROCESSING});
+    //             generateSuggestion(llmEvents[0].data);
+    //         }
+    //     }
+    // }, [llmEvents])
 
     const generateWarnings = async (goal: string, nodes: any, edges: any, workflowNameRef: any) => {
         try{
@@ -304,40 +359,43 @@ export function WorkflowGoal({ }: { }) {
         }
     }
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if(llmEvents.length > 0){
-            if((llmEvents[0].type == LLMEvents.GENERATE_SUGGESTIONS) && llmEvents[0].status == LLMEventStatus.PROCESSING && nodes.length > 0){
-                TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
-                consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.NOTDONE});
-            }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
-                TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
-                consumeEvent({type: LLMEvents.GENERATE_HIGHLIGHTS, status: LLMEventStatus.NOTDONE, data: llmEvents[0].data});
-            }else if(llmEvents[0].type == LLMEvents.EDIT_SUBTASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
-                consumeEvent({type: LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK, status: LLMEventStatus.NOTDONE, data: llmEvents[0].data});
-            }else if(llmEvents[0].type == LLMEvents.GENERATE_WARNINGS && llmEvents[0].status == LLMEventStatus.PROCESSING){
-                consumeEvent({type: LLMEvents.GENERATE_HIGHLIGHTS, status: LLMEventStatus.NOTDONE, data: workflowGoal});
-            }else if(llmEvents[0].type == LLMEvents.DELETE_SUBTASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
-                consumeEvent({type: LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK, status: LLMEventStatus.NOTDONE, data: llmEvents[0].data});
-            }else if(llmEvents[0].type == LLMEvents.BIND_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.PROCESSING){
-                consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.DONE});
-            }
-        }
+    //     if(llmEvents.length > 0){
+    //         if((llmEvents[0].type == LLMEvents.GENERATE_SUGGESTIONS) && llmEvents[0].status == LLMEventStatus.PROCESSING && nodes.length > 0){
+    //             TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
+    //             consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.NOTDONE});
+    //         }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
+    //             TrillGenerator.addNewVersionProvenance(nodes, edges, workflowNameRef.current, workflowGoal, currentEventPipeline);
+    //             consumeEvent({type: LLMEvents.GENERATE_HIGHLIGHTS, status: LLMEventStatus.NOTDONE, data: llmEvents[0].data});
+    //         }else if(llmEvents[0].type == LLMEvents.EDIT_SUBTASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
+    //             consumeEvent({type: LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK, status: LLMEventStatus.NOTDONE, data: llmEvents[0].data});
+    //         }else if(llmEvents[0].type == LLMEvents.GENERATE_WARNINGS && llmEvents[0].status == LLMEventStatus.PROCESSING){
+    //             consumeEvent({type: LLMEvents.GENERATE_HIGHLIGHTS, status: LLMEventStatus.NOTDONE, data: workflowGoal});
+    //         }else if(llmEvents[0].type == LLMEvents.DELETE_SUBTASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
+    //             consumeEvent({type: LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK, status: LLMEventStatus.NOTDONE, data: llmEvents[0].data});
+    //         }else if(llmEvents[0].type == LLMEvents.BIND_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.PROCESSING){
+    //             consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.DONE});
+    //         }
+    //     }
 
-    }, [nodes]);
+    // }, [nodes]);
 
     const clickGenerateSuggestion = () => {
-        if(llmEvents.length > 0){
-            alert("Wait a few seconds, we are still processing requests.")
-        }else{
-            setCurrentEventPipeline("Generating suggestions from Task");
+        // if(llmEvents.length > 0){
+        //     alert("Wait a few seconds, we are still processing requests.")
+        // }else{
+        //     setCurrentEventPipeline("Generating suggestions from Task");
 
-            addNewEvent({
-                type: LLMEvents.GENERATE_SUGGESTIONS,
-                status: LLMEventStatus.NOTDONE,
-                data: false
-            });
-        }
+        //     addNewEvent({
+        //         type: LLMEvents.GENERATE_SUGGESTIONS,
+        //         status: LLMEventStatus.NOTDONE,
+        //         data: false
+        //     });
+        // }
+
+        setCurrentEventPipeline("Generating suggestions from Task");
+        generateSuggestion(false);
     }
 
     return (
