@@ -8,7 +8,7 @@
 
 ## Overview
 
-UUrbanite is a framework for human-AI collaboration in urban visual analytics that leverages a dataflow-based model allowing users to specify intent at multiple scopes, enabling interactive alignment across specification, process, and evaluation stages. The framework incorporates features for explainability, multi-resolution task definition across dataflows, nodes, and parameters, and supporting interaction provenance based on findings from a survey identifying existing challenges.
+Urbanite is a framework for human-AI collaboration in urban visual analytics that leverages a dataflow-based model allowing users to specify intent at multiple scopes, enabling interactive alignment across specification, process, and evaluation stages. The framework incorporates features for explainability, multi-resolution task definition across dataflows, nodes, and parameters, and supporting interaction provenance based on findings from a survey identifying existing challenges.
 
 **Urbanite: A Dataflow-Based Framework for Human-AI Interactive Alignment in Urban Visual Analytics**  
 Gustavo Moreira, Leonardo Ferreira, Carolina Veiga, Maryam Hosseini, and Fabio Miranda  
