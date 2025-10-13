@@ -17,12 +17,12 @@ import geopandas as gpd
 
 app = Flask(__name__)
 address=os.getenv('FLASK_RUN_HOST', 'localhost')
-port=int(os.getenv('FLASK_RUN_PORT', 5002))
+port=int(os.getenv('FLASK_RUN_PORT', 5003))
 
 # api_address = os.getenv('SANDBOX_ADDRESS', 'localhost')
 api_address = "http://localhost"
 
-api_port = 2000
+api_port = 2001
 
 conversation = {}
 

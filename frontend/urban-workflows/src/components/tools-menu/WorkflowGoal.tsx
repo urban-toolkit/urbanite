@@ -14,12 +14,25 @@ export function WorkflowGoal({ }: { }) {
     const [isEditing, setIsEditing] = useState(false);
     const [segments, setSegments] = useState<any>([]);
     const [highlights, setHighlights] = useState<any>({});
+
     const [tooltip, setTooltip] = useState({ visible: false, text: "", x: 0, y: 0, color: "" });
     const [loading, setLoading] = useState(false);
     const [tempWorkflowGoal, setTempWorkflowGoal] = useState(workflowGoal);
     const intervalWarningsRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const intervalNewSubtaskssRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const intervalHighlightsBindingsRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const workflowGoalRef = useRef("");
+
+    useEffect(() => {
+        workflowGoalRef.current = workflowGoal;
+    }, [workflowGoal]);
+
+    const highlightsRef = useRef({});
+
+    useEffect(() => {
+        highlightsRef.current = highlights;
+    }, [highlightsRef]);
 
     const typeColors: any = {
         Action: "#e6b1b1",
@@ -182,6 +195,7 @@ export function WorkflowGoal({ }: { }) {
         if(tempWorkflowGoal != workflowGoal){
             setWorkflowGoal(tempWorkflowGoal);
             parseKeywords(tempWorkflowGoal);
+            getNewSubtasks(tempWorkflowGoal);
         }
 
         // if(tempWorkflowGoal != workflowGoal){
@@ -272,6 +286,22 @@ export function WorkflowGoal({ }: { }) {
 
     // }, []);
 
+    useEffect(() => {
+        const goalParsingInterval = setInterval(() => { 
+            parseKeywords(workflowGoalRef.current);
+        }, 60000);
+
+        const getNewTaskInterval = setInterval(() => { 
+            getNewTask(workflowGoalRef.current, highlightsRef.current);
+        }, 120000);
+
+        // Cleanup interval on unmount
+        return () => {
+            clearInterval(goalParsingInterval);
+
+        };
+    }, []);
+
     // useEffect(() => {
     //     if (!intervalNewSubtaskssRef.current) {
     //         intervalNewSubtaskssRef.current = setInterval(() => {
@@ -307,12 +337,12 @@ export function WorkflowGoal({ }: { }) {
     //     if(llmEvents.length > 0){
     //         if((llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS_RESET || llmEvents[0].type == LLMEvents.GENERATE_HIGHLIGHTS) && llmEvents[0].status == LLMEventStatus.NOTDONE){
 
-    //             let event = {...llmEvents[0]};
+    //             x let event = {...llmEvents[0]};
 
-    //             consumeEvent({type: event.type, status: LLMEventStatus.PROCESSING});
+    //             x consumeEvent({type: event.type, status: LLMEventStatus.PROCESSING});
                 
-    //             setTempWorkflowGoal(event.data);
-    //             parseKeywords(event.data);
+    //             x setTempWorkflowGoal(event.data);
+    //             x parseKeywords(event.data);
     //         }else if(llmEvents[0].type == LLMEvents.BIND_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.NOTDONE){
     //             consumeEvent({type: LLMEvents.BIND_HIGHLIGHTS, status: LLMEventStatus.PROCESSING});
     //         }else if(llmEvents[0].type == LLMEvents.EDIT_TASK && llmEvents[0].status == LLMEventStatus.NOTDONE){
@@ -322,8 +352,8 @@ export function WorkflowGoal({ }: { }) {
     //         }else if(llmEvents[0].status == LLMEventStatus.DONE){
     //             consumeEvent();
     //         }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_SUBTASK_FROM_TASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
-    //             setWorkflowGoal(tempWorkflowGoal);
-    //             getNewSubtasks(tempWorkflowGoal);
+    //             x setWorkflowGoal(tempWorkflowGoal);
+    //             x getNewSubtasks(tempWorkflowGoal);
     //         }else if(llmEvents[0].type == LLMEvents.BIND_HIGHLIGHTS && llmEvents[0].status == LLMEventStatus.PROCESSING){
     //             getNewHighlightsBinding(nodes, edges, workflowNameRef.current, highlights, workflowGoal);
     //         }else if(llmEvents[0].type == LLMEvents.GENERATE_NEW_TASK_FROM_SUBTASK && llmEvents[0].status == LLMEventStatus.PROCESSING){
@@ -459,7 +489,7 @@ export function WorkflowGoal({ }: { }) {
                     }   
                 </div>
                 {!loading ?
-                    workflowGoal != "" && llmEvents.length == 0 ?
+                    workflowGoal != "" ?
                         suggestionsLeft > 0 ? 
                             <button style={button} onClick={cancelSuggestions}>Cancel suggestions</button> :
                             <button style={button} onClick={clickGenerateSuggestion}>Generate suggestions</button>

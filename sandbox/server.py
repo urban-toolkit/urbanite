@@ -7,7 +7,7 @@ import utk
 
 app = Flask(__name__)
 address = '0.0.0.0'
-port = 2000
+port = 2001
 
 @app.after_request
 def add_cors_headers(response):
