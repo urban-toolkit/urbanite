@@ -7,13 +7,11 @@ import { useFlowContext } from "../../providers/FlowProvider";
 import { useCode } from "../../hook/useCode";
 import TrillProvenanceWindow from "./TrillProvenanceWindow";
 import { useLLMContext } from "../../providers/LLMProvider";
-import { LLMEvents } from "../../constants";
 
 export function UpMenu({ setDashBoardMode, setDashboardOn, dashboardOn }: { setDashBoardMode: (mode: boolean) => void; setDashboardOn: (mode: boolean) => void; dashboardOn: boolean }) {
     const [isEditing, setIsEditing] = useState(false);
     const [fileMenuOpen, setFileMenuOpen] = useState(false);
     const [trillProvenanceOpen, setTrillProvenanceOpen] = useState(false);
-    const { llmEvents } = useLLMContext();
 
     const { nodes, edges, workflowNameRef, setWorkflowName, workflowGoal } = useFlowContext();
     const { loadTrill } = useCode();
@@ -94,7 +92,7 @@ export function UpMenu({ setDashBoardMode, setDashboardOn, dashboardOn }: { setD
     return (
         <>
             {/* Top Menu Bar */}
-            <div className="nowheel nodrag" style={{...menuBar, ...(llmEvents.length > 0 ? {opacity: "60%", pointerEvents: "none"} : {})}}>
+            <div className="nowheel nodrag" style={{...menuBar}}>
                 <button style={button}>Back to Projects</button>
                 <div style={dropdownWrapper}>
                     <button
@@ -119,7 +117,7 @@ export function UpMenu({ setDashBoardMode, setDashboardOn, dashboardOn }: { setD
                 <button style={{...button}} onClick={openTrillProvenanceModal}>Provenance</button>
             </div>
             {/* Editable Workflow Name */}
-            <div style={{...workflowNameContainer, ...(llmEvents.length > 0 ? {opacity: "60%", pointerEvents: "none"} : {})}}>
+            <div style={{...workflowNameContainer}}>
                 {isEditing ? (
                     <input
                         type="text"

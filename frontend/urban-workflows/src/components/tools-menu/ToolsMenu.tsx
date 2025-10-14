@@ -2,7 +2,7 @@ import React from "react";
 import CSS from "csstype";
 
 import { useCode } from "../../hook/useCode";
-import { BoxType, LLMEvents } from "../../constants";
+import { BoxType } from "../../constants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBroom,
@@ -25,7 +25,6 @@ import { useLLMContext } from "../../providers/LLMProvider";
 
 export function ToolsMenu() {
     const { createCodeNode } = useCode();
-    const { llmEvents } = useLLMContext();
 
     // const handleClick = (boxType: BoxType) => {
     //     for(const type in BoxType){
@@ -55,7 +54,7 @@ export function ToolsMenu() {
 
     return (
         <div>
-            <div style={{...containerStyle, ...(llmEvents.length > 0 ? {opacity: "60%", pointerEvents: "none"} : {})}}>
+            <div style={{...containerStyle}}>
                 <OverlayTrigger
                     placement="right"
                     delay={overlayTriggerProps}

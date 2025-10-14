@@ -23,7 +23,7 @@ import {
     NodeRemoveChange
 } from "reactflow";
 import { ConnectionValidator } from "../ConnectionValidator";
-import { BoxType, EdgeType, LLMEvents, LLMEventStatus } from "../constants";
+import { BoxType, EdgeType } from "../constants";
 import { useProvenanceContext } from "./ProvenanceProvider";
 import { TrillGenerator } from "../TrillGenerator";
 import { useLLMContext } from "./LLMProvider";

@@ -43,7 +43,7 @@ import {
     faTriangleExclamation,
     faAnglesUp
 } from "@fortawesome/free-solid-svg-icons";
-import { AccessLevelType, BoxType, LLMEvents, LLMEventStatus, SupportedType } from "../constants";
+import { AccessLevelType, BoxType, SupportedType } from "../constants";
 import './styles.css';
 import { Template, useTemplateContext } from "../providers/TemplateProvider";
 import { useCode } from "../hook/useCode";
@@ -92,7 +92,7 @@ export const BoxContainer = ({
     styles?: CSS.Properties;
     handleType?: string;
 }) => {
-    const { openAIRequest, llmEvents, addNewEvent, setCurrentEventPipeline, currentEventPipeline, consumeEvent } = useLLMContext();
+    const { openAIRequest, setCurrentEventPipeline } = useLLMContext();
     const { nodes, edges, workflowNameRef, updateDefaultCode, onNodesChange, setPinForDashboard, acceptSuggestion, updateDataNode, workflowGoal } = useFlowContext();
     const { getTemplates, deleteTemplate } = useTemplateContext();
     const { createCodeNode, loadTrill } = useCode();
@@ -451,12 +451,12 @@ export const BoxContainer = ({
         <>
             <div id={nodeId+"resizer"} className={"resizer nowheel nodrag"} style={{...((data.suggestionType != "none" && data.suggestionType != undefined) ? {pointerEvents: "none"} : {})}}></div>
             {data.suggestionAcceptable ?
-                <button style={{...buttonAcceptSuggestion, ...(llmEvents.length > 0 ? {opacity: "60%", pointerEvents: "none"} : {})}} onClick={() => {acceptSuggestion(nodeId)}}>Accept Suggestion</button> :
+                <button style={{...buttonAcceptSuggestion}} onClick={() => {acceptSuggestion(nodeId)}}>Accept Suggestion</button> :
                 null
             }
 
             {!minimized ?
-                <button style={{border: "none", background: "none", color: "#1d3853", ...(isSubtasksOpen ? openSubtasksButton : closedSubtasksButton), ...(llmEvents.length > 0 ? {opacity: "60%"} : {})}} onClick={() => setIsSubtasksOpen(!isSubtasksOpen)}>
+                <button style={{border: "none", background: "none", color: "#1d3853", ...(isSubtasksOpen ? openSubtasksButton : closedSubtasksButton)}} onClick={() => setIsSubtasksOpen(!isSubtasksOpen)}>
                     <FontAwesomeIcon icon={faAnglesUp} style={{...(isSubtasksOpen ? {} : {transform: "rotate(180deg)"})}} />
                 </button> : null            
             }
@@ -464,7 +464,7 @@ export const BoxContainer = ({
             {!minimized && isSubtasksOpen ?
                 <div style={{...goalInput, ...(currentBoxWidth ? {width: (currentBoxWidth-4)+"px"} : {}), ...((data.suggestionType != "none" && data.suggestionType != undefined) ? {opacity: "50%", pointerEvents: "none"} : {})}} className={"nodrag"}>
                     <label htmlFor={nodeId+"_goal_box_input"}>Subtask: </label>
-                    <input id={nodeId+"_goal_box_input"} type={"text"} style={{width: "65%", border: "none", background: "transparent", color: "rgb(251, 252, 246)", borderBottom: "1px solid rgb(46, 91, 136)"}} value={goal} onBlur={() => {updateDataGoal(goal)}} onChange={(value: any) => {if(llmEvents.length > 0){alert("Wait a few seconds, we are still processing requests.")}else{setGoal(value.target.value)}}}/>
+                    <input id={nodeId+"_goal_box_input"} type={"text"} style={{width: "65%", border: "none", background: "transparent", color: "rgb(251, 252, 246)", borderBottom: "1px solid rgb(46, 91, 136)"}} value={goal} onBlur={() => {updateDataGoal(goal)}} onChange={(value: any) => {setGoal(value.target.value)}}/>
                     {data.nodeType != BoxType.VIS_UTK ? <button style={buttonStyle} onClick={clickGenerateContentNode} >Get code</button> : null}
                 </div> : null
             }
@@ -483,13 +483,13 @@ export const BoxContainer = ({
             }
 
             {!minimized && (handleType == "in/out" || handleType == "in") ?
-                <button style={{border: "none", background: "none", color: "#1d3853", ...(isConnectionLeftOpen ? openConnectionLeftButton : closedConnectionLeftButton), ...(llmEvents.length > 0 ? {opacity: "60%"} : {})}} onClick={() => setIsConnectionLeftOpen(!isConnectionLeftOpen)}>
+                <button style={{border: "none", background: "none", color: "#1d3853", ...(isConnectionLeftOpen ? openConnectionLeftButton : closedConnectionLeftButton)}} onClick={() => setIsConnectionLeftOpen(!isConnectionLeftOpen)}>
                     <FontAwesomeIcon icon={faAnglesUp} style={{...(isConnectionLeftOpen ? {transform: "rotate(90deg)"} : {transform: "rotate(270deg)"})}} />
                 </button> : null            
             }
 
             {!minimized && (handleType == "in/out" || handleType == "out") ?
-                <button style={{border: "none", background: "none", color: "#1d3853", ...(isConnectionRightOpen ? openConnectionRightButton : closedConnectionRightButton), ...(llmEvents.length > 0 ? {opacity: "60%"} : {})}} onClick={() => setIsConnectionRightOpen(!isConnectionRightOpen)}>
+                <button style={{border: "none", background: "none", color: "#1d3853", ...(isConnectionRightOpen ? openConnectionRightButton : closedConnectionRightButton)}} onClick={() => setIsConnectionRightOpen(!isConnectionRightOpen)}>
                     <FontAwesomeIcon icon={faAnglesUp} style={{...(isConnectionRightOpen ? {transform: "rotate(270deg)"} : {transform: "rotate(90deg)"})}} />
                 </button> : null            
             }
@@ -568,7 +568,7 @@ export const BoxContainer = ({
 
                 <Row  style={{...{ width: "32%", marginRight: "auto", marginLeft: "10px", marginTop: "4px"}, ...((data.suggestionType != "none" && data.suggestionType != undefined) ? {pointerEvents: "none"} : {})}}>
                     {sendCodeToWidgets != undefined ? <Row style={{alignItems: "center"}}>
-                        <Col md={2}><FontAwesomeIcon className={"nowheel nodrag"} icon={faCirclePlay} style={{...{cursor: "pointer", fontSize: "27px", color: "rgb(35, 198, 134)"}, ...(llmEvents.length > 0 ? {opacity: "60%", pointerEvents: "none"} : {})}} onClick={() => {
+                        <Col md={2}><FontAwesomeIcon className={"nowheel nodrag"} icon={faCirclePlay} style={{...{cursor: "pointer", fontSize: "27px", color: "rgb(35, 198, 134)"}}} onClick={() => {
                             setOutputCallback({code: "exec", content: ""});
                             sendCodeToWidgets(code); // will resolve markers
                             generateSubtaskFromExec((code ? code : ""), data.nodeType, workflowGoal);

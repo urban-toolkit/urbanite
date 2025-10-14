@@ -9,13 +9,11 @@ import {
     faArrowUp
 } from "@fortawesome/free-solid-svg-icons";
 import ReactMarkdown from "react-markdown";
-import { TrillGenerator } from "../TrillGenerator";
-import { LLMEvents, LLMEventStatus } from "../constants";
 import "./LLMChat.css";
 
 const ChatComponent = () => {
-    const { openAIRequest, addNewEvent, llmEvents, consumeEvent, setCurrentEventPipeline } = useLLMContext();
-    const { setWorkflowGoal, cleanCanvas, workflowNameRef } = useFlowContext();
+    const { openAIRequest, setCurrentEventPipeline } = useLLMContext();
+    const { setWorkflowGoal, cleanCanvas } = useFlowContext();
     const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -67,26 +65,20 @@ const ChatComponent = () => {
     }
 
     const applyGoal = (task: string) => {
+        const isConfirmed = window.confirm("Are you sure you want to proceed? This will clear your entire board.");
 
-        if(llmEvents.length == 0){ // Check if it will start a new chain of LLM events
-            const isConfirmed = window.confirm("Are you sure you want to proceed? This will clear your entire board.");
-    
-            if (isConfirmed) {
-                setCurrentEventPipeline("Applying Task from LLM");
+        if (isConfirmed) {
+            setCurrentEventPipeline("Applying Task from LLM");
 
-                // addNewEvent({
-                //     type: LLMEvents.APPLY_TASK,
-                //     data: checkForGoal(task) as string,
-                //     status: LLMEventStatus.NOTDONE
-                // });
+            // addNewEvent({
+            //     type: LLMEvents.APPLY_TASK,
+            //     data: checkForGoal(task) as string,
+            //     status: LLMEventStatus.NOTDONE
+            // });
 
-                cleanCanvas();
-                setWorkflowGoal(checkForGoal(task) as string);
-            }
-        }else{
-            alert("Wait a few seconds, we are still processing requests.")
+            cleanCanvas();
+            setWorkflowGoal(checkForGoal(task) as string);
         }
-
     }
 
     // useEffect(() => {
@@ -118,11 +110,11 @@ const ChatComponent = () => {
     return (
         <div>
             {/* Toggle Button */}
-            <button style={{...toggleButton, ...(isOpen ? openButton : {}), ...(llmEvents.length > 0 ? {opacity: "60%"} : {})}} onClick={() => setIsOpen(!isOpen)}>
+            <button style={{...toggleButton, ...(isOpen ? openButton : {})}} onClick={() => setIsOpen(!isOpen)}>
                 LLM <FontAwesomeIcon icon={faAnglesUp} style={{...(isOpen ? {transform: "rotate(90deg)"} : {transform: "rotate(270deg)"})}} />
             </button>
             {/* Sidebar */}
-            <div style={{...sidebar, ...(isOpen ? openSidebar : {}), ...(llmEvents.length > 0 ? {opacity: "60%"} : {})}}>
+            <div style={{...sidebar, ...(isOpen ? openSidebar : {})}}>
                 <div style={{display: "flex", width: "100%", height: "50px", justifyContent: "center", alignItems: "center", borderBottom: "1px solid rgba(29, 56, 83, 0.1)", flexDirection: "row", marginTop: "15px", paddingBottom: "20px"}}>
                     <p style={{margin: 0, fontWeight: "bold", marginRight: "10px", color: "#1d3853", fontFamily: "Rubik", fontSize: "25px"}}>LLM Assistant</p>
                     <FontAwesomeIcon icon={faBroom} style={{cursor: "pointer", fontSize: "20px", color: "#1d3853"}} title={"Clean chat"} onClick={cleanOpenAIChat} />

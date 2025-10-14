@@ -5,56 +5,22 @@ import React, {
     useState,
     useEffect
 } from "react";
-import { LLMEvents, LLMEventStatus } from "../constants";
 
 interface LLMContextProps {
     openAIRequest: (preamble_file: string, prompt_file: string, text: string, chatId?: string) => any;
-    addNewEvent: (event: {type: LLMEvents,  status: LLMEventStatus, data?: any}) => void;
-    consumeEvent: (newEvent?: {type: LLMEvents, status: LLMEventStatus, data?: any}) => void;
     setCurrentEventPipeline: (eventName: string) => void;
     currentEventPipeline: string;
-    llmEvents: {type: LLMEvents, status: LLMEventStatus, data?: any}[];
 }
 
 export const LLMContext = createContext<LLMContextProps>({
     openAIRequest: () => {},
-    addNewEvent: () => {},
-    consumeEvent: () => {},
     setCurrentEventPipeline: () => {},
-    currentEventPipeline: "",
-    llmEvents: []
+    currentEventPipeline: ""
 });
 
 const LLMProvider = ({ children }: { children: ReactNode }) => {
 
-    const [llmEvents, setLLMEvents] = useState<{type: LLMEvents, status: LLMEventStatus, data?: any}[]>([]); // Events are consumed starting from index 0
-
     const [currentEventPipeline, setCurrentEventPipeline] = useState("");
-
-    useEffect(() => {
-        console.log("llmEvents", llmEvents);
-    }, [llmEvents]);
-
-    const addNewEvent = (event: {type: LLMEvents, status: LLMEventStatus, data?: any}) => {
-        // setLLMEvents((prevEvents: {type: LLMEvents, status: LLMEventStatus, data?: any}[]) => { // Overwrite previous events
-        //     return [event];
-        // });
-    };
-
-    const consumeEvent = (newEvent?: {type: LLMEvents, status: LLMEventStatus,  data?: any}) => {
-        if(llmEvents.length == 0){
-            throw new Error("No LLM Events to consume");
-        }
-
-        setLLMEvents((prevEvents: {type: LLMEvents, status: LLMEventStatus, data?: any}[]) => {
-
-            if(newEvent != undefined)
-                return [newEvent, ...prevEvents.slice(1)];
-            else
-                return prevEvents.slice(1);
-
-        });
-    }
 
     const openAIRequest = async (preamble_file: string, prompt_file: string, text: string, chatId?: string) => {
 
@@ -102,11 +68,8 @@ const LLMProvider = ({ children }: { children: ReactNode }) => {
         <LLMContext.Provider
             value={{
                 openAIRequest,
-                addNewEvent,
-                consumeEvent,
                 setCurrentEventPipeline,
-                currentEventPipeline,
-                llmEvents
+                currentEventPipeline
             }}
         >
             {children}

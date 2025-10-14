@@ -15,7 +15,7 @@ import { useFlowContext } from "../providers/FlowProvider";
 import { ToolsMenu, UpMenu } from "./tools-menu";
 import ComputationAnalysisBox from "./ComputationAnalysisBox";
 import DataTransformationBox from "./DataTransformationBox";
-import { BoxType, EdgeType, LLMEvents, LLMEventStatus } from "../constants";
+import { BoxType, EdgeType } from "../constants";
 import DataLoadingBox from "./DataLoadingBox";
 import VegaBox from "./VegaBox";
 import TextBox from "./TextBox";
@@ -98,7 +98,7 @@ export function MainCanvas() {
 
     const { onContextMenu, showMenu, menuPosition } = useRightClickMenu();
     const { createCodeNode } = useCode();
-    const { openAIRequest, llmEvents, addNewEvent, setCurrentEventPipeline } = useLLMContext();
+    const { openAIRequest } = useLLMContext();
    
     let objectTypes: any = {};
     objectTypes[BoxType.COMPUTATION_ANALYSIS] = ComputationAnalysisBox;
