@@ -26,7 +26,6 @@ import { ConnectionValidator } from "../ConnectionValidator";
 import { BoxType, EdgeType } from "../constants";
 import { useProvenanceContext } from "./ProvenanceProvider";
 import { TrillGenerator } from "../TrillGenerator";
-import { useLLMContext } from "./LLMProvider";
 
 export interface IOutput {
     nodeId: string;
