@@ -4,7 +4,7 @@
 # Urbanite
 
 <div align="center">
-  <img src="https://github.com/urban-toolkit/urbanite/blob/main/logo-white.png?raw=true" alt="Urbanite Logo" height="360"/></br>
+  <img src="https://github.com/urban-toolkit/urbanite/blob/main/urbanite.png?raw=true" alt="Urbanite Logo" height="360"/></br>
   [<a href="https://urbantk.org/urbanite">Website</a>]
   <!-- [<a href="https://arxiv.org/abs/2408.06139">Paper</a>] | [<a href="https://urbantk.org/curio">Website</a>] -->
 </div>
